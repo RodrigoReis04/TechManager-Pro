@@ -1,0 +1,127 @@
+<!-- ==============================================================================
+     CONTAINER PRINCIPAL - CONFIGURAÇÃO DE LAYOUT GLOBAL E IDENTIDADE VISUAL
+     ============================================================================== -->
+<div class="min-vh-100 p-4" style="background-color: #f4f5f7; font-family: 'Helvetica Neue', Arial, sans-serif;">
+  <div class="container-fluid">
+
+    <!-- ============================================================================
+         SEÇÃO 1: CABEÇALHO DA APLICAÇÃO (BRANDING)
+         ============================================================================ -->
+    <header class="d-flex align-items-center mb-4" role="banner">
+      <!-- Bloco de Destaque Visual do Logotipo -->
+      <div class="p-3 rounded shadow-sm me-3" style="background-color: #0079bf;">
+        <span style="font-size: 28px; color: #ffffff;" aria-hidden="true">🛠️</span>
+      </div>
+      <!-- Títulos Corporativos -->
+      <div>
+        <h2 class="fw-bold mb-0" style="color: #172b4d;">TechManager Pro</h2>
+        <p class="text-secondary mb-0 fw-semibold">Sistema de Gestão de Ordens de Serviço | FT PRINT</p>
+      </div>
+    </header>
+
+    <!-- ============================================================================
+         SEÇÃO 2: DASHBOARD INTEGRADO - CONTADORES MÉTRICOS DE STATUS
+         ============================================================================ -->
+    <section class="row mb-4" aria-label="Painel de Indicadores">
+      <!-- Loop Estrutural Angular: Renderiza dinamicamente um card de contagem para cada status da esteira -->
+      <div class="col-md-4" *ngFor="let statusItem of ['Em Análise', 'Em Manutenção', 'Concluído']">
+        <div class="card p-3 shadow-sm border-0 h-100" style="border-radius: 8px; border-bottom: 4px solid #0079bf;">
+          <!-- Rótulo do Status Atual -->
+          <h6 class="text-muted text-uppercase small fw-bold mb-2">{{ statusItem }}</h6>
+          <!-- Valor Métrico Injetado Via Controladora -->
+          <h3 class="fw-bold m-0 text-dark">{{ contarStatus(statusItem) }}</h3>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================================================================
+         SEÇÃO 3: ÁREA OPERACIONAL - FORMULÁRIO DE ENTRADA E LISTAGEM DE DADOS
+         ============================================================================ -->
+    <div class="row">
+
+      <!-- SUB-BLOCO A: FORMULÁRIO DE CAPTURA (ABERTURA DE CHAMADOS) -->
+      <aside class="col-md-3 mb-4" aria-label="Cadastro de Novas Ordens">
+        <div class="card shadow-sm border-0 p-4" style="border-radius: 8px; background-color: #ebecf0;">
+          <h6 class="fw-bold mb-3" style="color: #5e6c84;">NOVA Ordem de Serviço</h6>
+          
+          <!-- Elementos de Entrada com Data-Binding Bidirecional [(ngModel)] -->
+          <input class="form-control mb-2 border-0" placeholder="Cliente" [(ngModel)]="novaOS.cliente" aria-label="Nome do Cliente">
+          <input class="form-control mb-2 border-0" placeholder="Endereço" [(ngModel)]="novaOS.endereco" aria-label="Endereço">
+          <input class="form-control mb-2 border-0" placeholder="Patrimônio" [(ngModel)]="novaOS.patrimonio" aria-label="Código de Patrimônio">
+          <input class="form-control mb-2 border-0" placeholder="Marca/Modelo" [(ngModel)]="novaOS.marca" aria-label="Marca e Modelo">
+          <textarea class="form-control mb-3 border-0" placeholder="Causa/Motivo" rows="2" [(ngModel)]="novaOS.causa" aria-label="Causa ou Motivo do chamado"></textarea>
+          
+          <!-- Gatilho de Persistência no Componente TypeScript -->
+          <button class="btn text-white w-100 fw-bold shadow-sm" style="background-color: #0079bf; border-radius: 4px;" (click)="salvarOS()">
+            Gravar informações
+          </button>
+        </div>
+      </aside>
+
+      <!-- SUB-BLOCO B: GERENCIADOR DE LISTAGEM E MECANISMO DE BUSCA -->
+      <main class="col-md-9" role="main">
+        <!-- Controle de Filtro de Dados em Tempo Real -->
+        <input class="form-control form-control-sm mb-3 border-0 shadow-sm p-2" placeholder="🔍 Pesquisar por cliente..." [(ngModel)]="termoBusca" aria-label="Pesquisar ordens de serviço por cliente">
+
+        <!-- Grid/Grid-List para Apresentação das Ordens Ativas -->
+        <div class="card shadow-sm border-0" style="border-radius: 6px; overflow: hidden;">
+
+          <!-- Cabeçalho de Colunas Padronizado (Desktop View) -->
+          <div class="row g-0 p-2 fw-bold text-muted bg-white border-bottom align-items-center" style="font-size: 0.7rem; text-transform: uppercase;">
+            <div class="col-md-2 ps-2">Cliente</div>
+            <div class="col-md-2">Endereço</div>
+            <div class="col-md-1">Patrimônio</div>
+            <div class="col-md-2">Marca/Modelo</div>
+            <div class="col-md-2">Causa</div>
+            <div class="col-md-2">Status</div>
+            <div class="col-md-1 text-end pe-2">Ação</div>
+          </div>
+
+          <!-- Corpo da Listagem Dinâmica -->
+          <div class="list-group list-group-flush">
+            <!-- Interpolação de Dados com Diretiva Estrutural de Repetição -->
+            <div *ngFor="let os of osFiltradas" class="list-group-item p-1 border-0 border-bottom" style="border-left: 4px solid #0079bf !important;">
+              <div class="row align-items-center g-0" style="font-size: 0.8rem;">
+
+                <!-- Propriedades com Tratamento de Estouro de Layout (text-truncate) -->
+                <div class="col-md-2 ps-2 fw-bold text-dark text-truncate" [title]="os.cliente">{{ os.cliente }}</div>
+                <div class="col-md-2 text-muted text-truncate" [title]="os.endereco">{{ os.endereco }}</div>
+                <div class="col-md-1 text-muted">{{ os.patrimonio }}</div>
+                <div class="col-md-2 text-muted text-truncate" [title]="os.marca">{{ os.marca }}</div>
+                <div class="col-md-2 text-muted text-truncate" [title]="os.causa">{{ os.causa }}</div>
+
+                <!-- Célula de Gerenciamento de Status com Estilização Condicional Ativa [ngClass] -->
+                <div class="col-md-2">
+                  <select class="form-select form-select-sm border-0 py-0 text-white" 
+                          style="height: 25px; font-size: 0.75rem;" 
+                          [ngModel]="os.status" 
+                          (ngModelChange)="alterarStatus(os._id, $event)" 
+                          [ngClass]="{
+                            'bg-warning': os.status === 'Em Análise',
+                            'bg-info': os.status === 'Em Manutenção',
+                            'bg-success': os.status === 'Concluído'
+                          }" 
+                          aria-label="Alterar status da ordem de serviço">
+                    <option value="Em Análise" class="text-dark">Em Análise</option>
+                    <option value="Em Manutenção" class="text-dark">Em Manutenção</option>
+                    <option value="Concluído" class="text-dark">Concluído</option>
+                  </select>
+                </div>
+
+                <!-- Ações Críticas - Remoção de Registros -->
+                <div class="col-md-1 text-end pe-2">
+                  <button class="btn btn-sm text-danger p-0 fw-semibold" style="font-size: 0.75rem;" (click)="deletarOS(os._id)" [aria-label]="'Excluir ordem de serviço de ' + os.cliente">
+                    Excluir
+                  </button>
+                </div>
+
+              </div>
+            </div> <!-- Fim do Item da Lista -->
+          </div> <!-- Fim do Corpo do Grupo de Listas -->
+
+        </div>
+      </main>
+
+    </div>
+  </div>
+</div>
